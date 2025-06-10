@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Obfuscator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .input-section, .output-section {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+            font-size: 1.1em;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group label {
+            margin: 0;
+            font-size: 0.9em;
+        }
+        
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .encrypt-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .encrypt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .copy-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .clear-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .output-section textarea {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-color: #34495e;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #27ae60;
+            color: white;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 JavaScript Obfuscator</h1>
+        
+        <div class="input-section">
+            <label for="inputCode">Input JavaScript Code:</label>
+            <textarea 
+                id="inputCode" 
+                placeholder="Masukkan kode JavaScript yang ingin di-obfuscate...&#10;&#10;Contoh:&#10;function hello() {&#10;    console.log('Hello World!');&#10;    return 'success';&#10;}"
+            ></textarea>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Prefix:</label>
+                <input type="text" id="prefix" value="RaflieModders" placeholder="Prefix variabel">
+            </div>
+            <div class="control-group">
+                <label>Suffix:</label>
+                <input type="text" id="suffix" value="RaflieModders" placeholder="Suffix variabel">
+            </div>
+            <div class="control-group">
+                <label>Min Length:</label>
+                <input type="number" id="minLength" value="2" min="1" max="5">
+            </div>
+            <div class="control-group">
+                <label>Max Length:</label>
+                <input type="number" id="maxLength" value="2" min="1" max="5">
+            </div>
+            <div class="control-group">
+                <input type="checkbox" id="encodeStrings" checked>
+                <label>Encode Strings</label>
+            </div>
+            <div class="control-group">
+                <input type="checkbox" id="renameVariables" checked>
+                <label>Rename Variables</label>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="encrypt-btn" onclick="obfuscateCode()">🔒 Obfuscate</button>
+            <button class="copy-btn" onclick="copyOutput()">📋 Copy Result</button>
+            <button class="clear-btn" onclick="clearAll()">🗑️ Clear All</button>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-item">
+                <div id="originalSize">0</div>
+                <div>Original Size</div>
+            </div>
+            <div class="stat-item">
+                <div id="obfuscatedSize">0</div>
+                <div>Obfuscated Size</div>
+            </div>
+            <div class="stat-item">
+                <div id="compressionRatio">0%</div>
+                <div>Size Increase</div>
+            </div>
+            <div class="stat-item">
+                <div id="variableCount">0</div>
+                <div>Variables Created</div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <label for="outputCode">Obfuscated JavaScript Code:</label>
+            <textarea id="outputCode" readonly placeholder="Hasil obfuscation akan muncul di sini..."></textarea>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        Kode berhasil disalin ke clipboard!
+    </div>
+
+    <script>
+        // Character sets untuk random string generation
+        const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        
+        // Storage untuk mapping variabel
+        let variableMap = new Map();
+        let variableCounter = 0;
+        
+        // Generate random string
+        function generateRandomString(length) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+            }
+            return result;
+        }
+        
+        // Generate variable name dengan prefix dan suffix
+        function generateVariableName(prefix, suffix, minLen, maxLen) {
+            const randomLength = Math.floor(Math.random() * (maxLen - minLen + 1)) + minLen;
+            const randomPart = generateRandomString(randomLength);
+            return prefix + suffix + randomPart;
+        }
+        
+        // Convert string ke unicode escape
+        function stringToUnicodeEscape(str) {
+            return str.split('').map(char => {
+                const code = char.charCodeAt(0);
+                return '\\u' + code.toString(16).padStart(4, '0');
+            }).join('');
+        }
+        
+        // Extract dan replace strings
+        function processStrings(code, encode) {
+            if (!encode) return code;
+            
+            const stringRegex = /(['"`])((?:\\.|[^\\])*?)\1/g;
+            const strings = [];
+            let index = 0;
+            
+            return code.replace(stringRegex, (match, quote, content) => {
+                if (content.length === 0) return match;
+                
+                const unicodeContent = stringToUnicodeEscape(content);
+                strings.push(unicodeContent);
+                return `'${unicodeContent}'`;
+            });
+        }
+        
+        // Extract identifiers dan buat mapping
+        function extractIdentifiers(code) {
+            const identifierRegex = /\b[a-zA-Z_$][a-zA-Z0-9_$]*\b/g;
+            const identifiers = new Set();
+            const reserved = new Set([
+                'function', 'var', 'let', 'const', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'default',
+                'break', 'continue', 'return', 'try', 'catch', 'finally', 'throw', 'new', 'this', 'typeof',
+                'instanceof', 'in', 'of', 'true', 'false', 'null', 'undefined', 'console', 'window', 'document',
+                'Object', 'Array', 'String', 'Number', 'Boolean', 'Date', 'Math', 'JSON', 'parseInt', 'parseFloat',
+                'isNaN', 'isFinite', 'alert', 'confirm', 'prompt', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'
+            ]);
+            
+            let match;
+            while ((match = identifierRegex.exec(code)) !== null) {
+                const identifier = match[0];
+                if (!reserved.has(identifier) && identifier.length > 1) {
+                    identifiers.add(identifier);
+                }
+            }
+            
+            return Array.from(identifiers);
+        }
+        
+        // Main obfuscation function
+        function obfuscateCode() {
+            const inputCode = document.getElementById('inputCode').value.trim();
+            if (!inputCode) {
+                alert('Silakan masukkan kode JavaScript yang ingin di-obfuscate!');
+                return;
+            }
+            
+            const prefix = document.getElementById('prefix').value || 'Obf';
+            const suffix = document.getElementById('suffix').value || 'Var';
+            const minLength = parseInt(document.getElementById('minLength').value) || 2;
+            const maxLength = parseInt(document.getElementById('maxLength').value) || 2;
+            const encodeStrings = document.getElementById('encodeStrings').checked;
+            const renameVariables = document.getElementById('renameVariables').checked;
+            
+            // Reset mapping
+            variableMap.clear();
+            variableCounter = 0;
+            
+            let obfuscatedCode = inputCode;
+            
+            // Process strings
+            if (encodeStrings) {
+                obfuscatedCode = processStrings(obfuscatedCode, true);
+            }
+            
+            // Rename variables
+            if (renameVariables) {
+                const identifiers = extractIdentifiers(obfuscatedCode);
+                
+                // Create mapping
+                identifiers.forEach(identifier => {
+                    if (!variableMap.has(identifier)) {
+                        const newName = generateVariableName(prefix, suffix, minLength, maxLength);
+                        variableMap.set(identifier, newName);
+                        variableCounter++;
+                    }
+                });
+                
+                // Replace identifiers
+                identifiers.forEach(identifier => {
+                    const newName = variableMap.get(identifier);
+                    const regex = new RegExp(`\\b${identifier}\\b`, 'g');
+                    obfuscatedCode = obfuscatedCode.replace(regex, newName);
+                });
+            }
+            
+            // Add dummy function dan variables
+            let dummyVars = [];
+            const dummyCount = Math.floor(Math.random() * 10) + 5;
+            
+            for (let i = 0; i < dummyCount; i++) {
+                const varName = generateVariableName(prefix, suffix, minLength, maxLength);
+                dummyVars.push(varName);
+            }
+            
+            // Create obfuscated header
+            let header = `function ${generateVariableName(prefix, suffix, minLength, maxLength)}(){}`;
+            
+            // Add Object.defineProperty reference
+            const objDefProp = generateVariableName(prefix, suffix, minLength, maxLength);
+            header += `var ${objDefProp}=Object['${stringToUnicodeEscape('defineProperty')}']`;
+            
+            // Add dummy variables
+            if (dummyVars.length > 0) {
+                header += `,${dummyVars.join(',')}`;
+            }
+            header += ';';
+            
+            // Wrap main function
+            const mainFuncName = generateVariableName(prefix, suffix, minLength, maxLength);
+            const wrappedCode = `function ${mainFuncName}(${generateVariableName(prefix, suffix, minLength, maxLength)}){return ${obfuscatedCode.replace(/\n/g, ' ')}}`;
+            
+            const finalCode = header + wrappedCode;
+            
+            // Display result
+            document.getElementById('outputCode').value = finalCode;
+            
+            // Update stats
+            updateStats(inputCode, finalCode);
+            
+            // Show stats
+            document.getElementById('stats').style.display = 'grid';
+        }
+        
+        // Update statistics
+        function updateStats(original, obfuscated) {
+            const originalSize = original.length;
+            const obfuscatedSize = obfuscated.length;
+            const ratio = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
+            
+            document.getElementById('originalSize').textContent = originalSize + ' chars';
+            document.getElementById('obfuscatedSize').textContent = obfuscatedSize + ' chars';
+            document.getElementById('compressionRatio').textContent = '+' + ratio + '%';
+            document.getElementById('variableCount').textContent = variableCounter;
+        }
+        
+        // Copy to clipboard
+        function copyOutput() {
+            const output = document.getElementById('outputCode');
+            if (!output.value) {
+                alert('Tidak ada kode untuk disalin!');
+                return;
+            }
+            
+            output.select();
+            document.execCommand('copy');
+            
+            // Show notification
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Clear all
+        function clearAll() {
+            document.getElementById('inputCode').value = '';
+            document.getElementById('outputCode').value = '';
+            document.getElementById('stats').style.display = 'none';
+            variableMap.clear();
+            variableCounter = 0;
+        }
+        
+        // Sample code untuk demo
+        document.getElementById('inputCode').value = `function greetUser(name) {
+    var message = "Hello, " + name + "!";
+    console.log(message);
+    return message;
+}
+
+var userName = "World";
+var result = greetUser(userName);
+alert(result);`;
+    </script>
+</body>
+</html>
